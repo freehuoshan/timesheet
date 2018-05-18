@@ -56,4 +56,11 @@ public class TimeSheet extends AbstractAuditingEntity implements Serializable {
 	public void setStatus(TimeSheetStatus status) {
 		this.status = status;
 	}
+
+	@Override
+	public String toString() {
+		return "TimeSheet [approvals=" + approvals + ", entries=" + entries + ", id=" + id + ", status=" + status + "]";
+	}
+	
+	
 }

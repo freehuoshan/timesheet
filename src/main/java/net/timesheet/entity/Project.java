@@ -88,5 +88,14 @@ public class Project {
 	public void setId(Long id) {
 		this.id = id;
 	}
+	@Override
+	public String toString() {
+		return "Project [id=" + id + ", positionId=" + positionId + ", positionName=" + positionName + ", location="
+				+ location + ", startDate=" + startDate + ", status=" + status + ", clientId=" + clientId
+				+ ", clientName=" + clientName + ", contactId=" + contactId + ", contactName=" + contactName
+				+ ", contactEmail=" + contactEmail + "]";
+	}
+	
+	
 
 }

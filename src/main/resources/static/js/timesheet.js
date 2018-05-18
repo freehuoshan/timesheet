@@ -1,76 +1,186 @@
 $(document).ready(function(){
 	
 	window.queryData = queryData;
-	
+	window.update = update;
+	//current date time
 	var d = new Date();
 	var year = d.getFullYear();
 	var month = d.getMonth();
+	var date = d.getDate();
+	//current timesheet
+	var timesheet;
+	//timesheet table body
+	var ts_body = $("#ts_body");
+	//Display navigation bar
 	showMonthHead(year, month);
+	//Get detailed information for this week, including start date, end date, and daily list.
+	showDate(year, month, date);
+	showDatePeriod();
+	queryData(year, month+1, state.week);
 	
-	function queryData(year, month, week){
-		var periodTime = getWeekTime(year, month, week);
-		showDate(year, month, periodTime.from.split("-")[2]);
-		console.log(state);
-		
-		$("#timesheet").bootstrapTable({
-	        queryParams: function (param) {
-	            return {beginTime: state.beginTime, endTime: state.endTime};
-	        },
-	        url: "/timesheet",
-	        columns: [{
-	            checkbox: true
-	        }, {
-	            field: "UserName",
-	            title: "用户名",
-	            editable: {
-	                type: 'text',
-	                title: '用户名',
-	                validate: function (v) {
-	                    if (!v) return '用户名不能为空';
-
-	                }
-	            }
-	        }, {
-	            field: "Age",
-	            title: "年龄",
-	        }, {
-	            field: "Birthday",
-	            title: "生日",
-	            formatter: function (value, row, index) {
-	                var date = eval('new ' + eval(value).source)
-	                return date.format("yyyy-MM-dd");
-	            }
-	        },
-	        {
-	            field: "DeptName",
-	            title: "部门"
-	        }, {
-	            field: "Hobby",
-	            title: "爱好"                
-	        }],
-	        onEditableSave: function (field, row, oldValue, $el) {
-	            $.ajax({
-	                type: "post",
-	                url: "/time_entry/edit",
-	                data: row,
-	                dataType: 'JSON',
-	                success: function (data, status) {
-	                    if (status == "success") {
-	                        alert('提交数据成功');
-	                    }
-	                },
-	                error: function () {
-	                    alert('编辑失败');
-	                },
-	                complete: function () {
-
-	                }
-
-	            });
-	        }
-	    });
+	$("#submit").click(function(){
+		$.ajax({
+			url: '/submit?id=' + timesheet.id,
+			type: "PUT",
+			dataType: "json",
+			success: function(data){
+				if(data.result){
+					alert("submit success");
+					window.location.reload();
+				}else{
+					alert("submit error");
+				}
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	});
+	
+	//edit time entry
+	function update(el){
+		var hours = parseInt($(el).html());
+		var id = $(el).attr("id");
+		var date = $(el).attr("date");
+		var asid = $(el).attr("asid");
+		if(!hours || hours < 0 || hours > 24){
+			alert("must be a number and more than 0 less than 24");
+		}else{
+			var url = '/time_entry/update?hours=' + hours + "&date=" + date + "&asid=" + asid + "&id=" + id + "&sheetId=" + timesheet.id;
+			//update data
+			$.ajax({
+				url: url,
+				type: "PUT",
+				dataType: "json",
+				success: function(data){
+					if(data.result){
+						calcRowTotal();
+						calcuTimeSheetTotal();
+					}else{
+						alert("update error");
+					}
+				},
+				error: function(error){
+					console.log(error);
+				}
+			});
+			
+		}
 	}
 	
+	//Display date information
+	function showDatePeriod(){
+		$("#time_period").html("Week" + state.week + "," + state.beginTime + "/" + state.endTime);
+	}
+	
+	 //setting timesheet table header   
+	function setTableHeader(){
+		var ts_header = $("#ts_header");
+		ts_header.html("");
+		ts_header.append("<th>Assignment ID</th>");
+		for(var i=0; i< state.list.length; i++){
+			ts_header.append("<th>" + state.list[i].weekDay + " " + state.list[i].date + "</th>");
+		}
+		ts_header.append("<th>Total</th>");
+	}
+	
+	//get the timsheet data
+	function queryData(year, month, week){
+		//get the week end date and start date
+		var periodTime = getWeekTime(year, month, week);
+		//Get more details of the week, Finally the week information is stored in the global variable "state"
+		showDate(year, month, periodTime.from.split("-")[2]);
+		console.log(state);
+		showDatePeriod();
+		setTableHeader();
+		//Get the week's timesheet information from the back-end
+		$.ajax({
+			url: '/timesheet',
+			data: {beginTime: state.beginTime, endTime: state.endTime},
+			dataType: "json",
+			success: function(data){
+				ts_body.html("");
+				if(data){
+					//Timsheet is stored in global variables, and will be used when modifying information.
+					timesheet = data[0].timesheet;
+					//loop each row of data
+					for(var i = 0; i < data.length; i++){
+						console.log(data[i]);
+						var total = 0;
+						var tr = $("<tr>")
+						tr.append("<td>" + data[i].assignment.id + "</td>");
+						//loop each cell (timeentry) 
+						for(var j = 0; j < data[i].list.length; j++ ){
+							var td = $("<td onblur= 'update(this)' asid='"+ data[i].list[j].assignment.id +"' id='"+ data[i].list[j].id +"' date='" + data[i].list[j].date +"' contenteditable='" + (timesheet.status == "NEW") + "'>" + data[i].list[j].hours + "</td>");
+							tr.append(td);
+							total += data[i].list[j].hours;
+						}
+						tr.append("<td>" + total + "</td>");
+						ts_body.append(tr);
+					}
+					var totalTr = $("<tr>");
+					totalTr.append("<td>total</td>");
+					for(var w = 0; w < 7; w++){
+						totalTr.append("<td></td>");
+					}
+					totalTr.append("<td></td>");
+					ts_body.append(totalTr);
+					
+					calcuTimeSheetTotal();
+				}
+			},
+			error: function(e){
+				ts_body.html("");
+			}
+		})
+	}
+	
+/*----------------  per column calculation for the timesheet table    ---------------------------*/
+	
+	// per column calculation for the timesheet table
+	function calcuTimeSheetTotal(){
+		for(var t = 1; t < 9; t++){
+			calcTotal(document.getElementById('timesheet'), t);
+		}
+	}
+	
+	function calcRowTotal(){
+		 var trs =  $('#timesheet tr');
+		 var rowIndex = 0;
+		 trs.each(function() {
+			 if(rowIndex != 0 && rowIndex != trs.length-1){
+				var rowTotal = 0;  
+		        var tds = $(this).find('td');
+		        var colIndex = 0;
+		        tds.each(function() {  
+		        	if(colIndex != 0 && colIndex != tds.length -1 ){
+		        		rowTotal += parseFloat($(this).text());  
+		        	}
+		        	colIndex++;
+		        });  
+		        tds[tds.length-1].innerHTML= rowTotal;
+			 }
+		     rowIndex++;  
+		 });  
+	}
+	
+	//Calculation of the specified column addition in the table
+	function calcTotal(table,column){//To sum up, which column is need to total the table object, the first column starts from 0.
+        var trs=table.getElementsByTagName('tr');
+        var start=1,//ignoring the first line of the head
+            end=trs.length-1;//Ignore the last line
+        var total=0;
+        for(var i=start;i<end;i++){
+            var td=trs[i].getElementsByTagName('td')[column];
+            var t=parseFloat(td.innerHTML);
+            if(t)total+=t;
+        }
+        trs[end].getElementsByTagName('td')[column].innerHTML=total;
+    };
+	
+   
+	
+/*------------------- Time    Navigation bar operation       --------------------------*/
 	$("#add").click(function(){
 		addMonth();
 	});
@@ -79,6 +189,7 @@ $(document).ready(function(){
 		reduceMonth();
 	});
 	
+	//Move the navigation bar to the left
 	function reduceMonth(){
 		month--;
 		if(month < 0){
@@ -88,6 +199,7 @@ $(document).ready(function(){
 		showMonthHead(year, month);
 	}
 	
+	//Move the navigation bar to the right
 	function addMonth(){
 	    month++;
 	    if(month>11) {
@@ -97,32 +209,35 @@ $(document).ready(function(){
 		showMonthHead(year, month);
 	}
 	
+	//Calculate the date and display the navigation bar, month begin with 0
+	//The incoming parameter is the middle month and the year of the navigation bar
 	function showMonthHead(year, month){
 		var monArr = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-		
 	    var centerMonth = month;
+	    //Calculate the month and year on the left
 	    var leftMonth = centerMonth -1;
 	    var leftYear = year;
 	    if(centerMonth == 0){
 	    	leftMonth = 11;
 	    	leftYear = year - 1;
 	    }
-	    
+	    //Calculate the month and year on the right
 	    var rightMonth = centerMonth + 1;
 	    var rightYear = year;
 	    if(centerMonth == 11){
 	    	rightMonth = 0;
 	    	rightYear = year + 1;
 	    }
-	   
-		var centerMonthWeeks = getWeeks(year, centerMonth);
-		var leftMonthWeeks = getWeeks(leftYear, leftMonth);
-		var rightMonthWeeks = getWeeks(rightYear, rightMonth);
+	    //calculate the number of weeks for per month
+		var centerMonthWeeks = getWeeks(year, centerMonth + 1);
+		var leftMonthWeeks = getWeeks(leftYear, leftMonth + 1);
+		var rightMonthWeeks = getWeeks(rightYear, rightMonth + 1);
 		
 		$("#leftMonth div:first").html(monArr[leftMonth]);
 		$("#leftMonth div:last").html("");
 		$("#centerMonth div:last").html("");
 		$("#rightMonth div:last").html("");
+		//show the weeks for each month
 		for(var i=1; i< leftMonthWeeks + 1; i++){
 			$("#leftMonth div:last").append("<span onclick='queryData("+ leftYear + "," + (leftMonth+1) + "," + i +")'>week" + i + "</span>");
 		}
@@ -144,151 +259,7 @@ $(document).ready(function(){
 });
 
 
-//get a few weeks a month
-function getWeeks(year, month) {
-        var d = new Date();
-        // The first day of the month
-        d.setFullYear(year, month-1, 1);
-        var w1 = d.getDay();
-        if (w1 == 0) w1 = 7;
-        // The number of days of the month
-        d.setFullYear(year, month, 0);
-        var dd = d.getDate();
-        // The first Monday
-        let d1;
-        if (w1 != 1) d1 = 7 - w1 + 2;
-        else d1 = 1;
-        let week_count = Math.ceil((dd-d1+1)/7);
-        return week_count;
-}
 
-//Get the date of the week from Monday to Sunday according to year month week.
-function getWeekTime(year, month,weekday) {
-    var d = new Date();
-    // The first day of the month
-    d.setFullYear(year, month-1, 1);
-    var w1 = d.getDay();
-    if (w1 == 0) w1 = 7;
-    // The number of days of the month
-    d.setFullYear(year, month, 0);
-    var dd = d.getDate();
-    // The first Monday
-    let d1;
-    if (w1 != 1) d1 = 7 - w1 + 2;
-    else d1 = 1;
-    var monday = d1+(weekday-1)*7;
-    var sunday = monday + 6;
-    var from = year+"-"+ month +"-"+monday;
-    var to;
-    if (sunday <= dd) {
-        to = year+"-"+month+"-"+sunday;
-    } else {
-        d.setFullYear(year, month-1, sunday);
-        let days=d.getDate();
-        to = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+days;
-    }
-    return {from: from, to: to};
-}
-
-//Get the Monday of the month of the week
-function getMondayTime(year, month,weekday) {
-    var d = new Date();
-    // The first day of the month
-    d.setFullYear(year, month-1, 1);
-    var w1 = d.getDay();
-    if (w1 == 0) w1 = 7;
-    // The number of days in the month
-    d.setFullYear(year, month, 0);
-    var dd = d.getDate();
-    // First Monday
-    let d1;
-    if (w1 != 1) d1 = 7 - w1 + 2;
-    else d1 = 1;
-    var monday = d1+(weekday-1)*7;
-    return monday;
-}
-
-//Get Monday's date
-function getMonDate(year, month, day) {
-    var d=new Date();
-    d.setFullYear(year, month-1, day);
-    var day=d.getDay();
-    var date=d.getDate();
-    if(day==1)
-        return d;
-    if(day==0)
-        d.setDate(date-6);
-    else
-        d.setDate(date-day+1);
-    return d;
-}
-
-//get week name
-function getDayName(day) {
-    var day=parseInt(day);
-    if(isNaN(day) || day<0 || day>6)
-        return false;
-    var weekday=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    return weekday[day];
-}
-
-function getMonthWeek(a, b, c) {
-    var date = new Date(a, parseInt(b) - 1, c), w = date.getDay(), d = date.getDate();
-    return Math.ceil(
-        (d + 6 - w) / 7
-    );
-}
-
-//Get the date of the last day of the month
-function getLastDay(year,month) {
-    var new_year = year;    
-    var new_month = month++;//Take the first day of the next month for easy calculation (the last day is not fixed)
-    if(month>12) {
-        new_month -=12;        //Month reduction
-        new_year++;            //Increased year
-    }
-    var new_date = new Date(new_year,new_month,1);                //Take the first day of the current year
-    return (new Date(new_date.getTime()-1000*60*60*24)).getDate();//Get the date of the last day of the month
-}
-
-
-
-//当前日期几月第几周
-function showDate(year, mon, day){
-	state = {};
-    var d= getMonDate(year, mon, day);
-    var ds=new Date();
-    ds.setFullYear(year, mon-1, day);
-    var arr=[];
-    for(var i=0; i<7; i++) {
-        let weekDay=this.getDayName(d.getDay());
-        let date=d.getDate();
-        if(weekDay=='Mon'){
-            let beginTime=ds.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
-            state.beginTime = beginTime;
-        }
-        if(weekDay=='Sun'){
-            let endTime=ds.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
-            state.endTime = endTime;
-        }
-        arr.push({weekDay:weekDay,date:date});
-        d.setDate(d.getDate()+1);
-    }
-    let month=ds.getMonth()+1;
-    let week=this.getMonthWeek(ds.getFullYear(),month,ds.getDate())-1;
-    //每月周一日期
-    let oneDate=this.getMondayTime(ds.getFullYear(),month,1);
-    if(ds.getDate()<oneDate){
-        month=ds.getMonth();
-        week=this.getWeeks(ds.getFullYear(),month);
-    }
-    this.state.year = ds.getFullYear();
-    this.state.month = month;
-    this.state.week = week;
-    this.state.list = arr;
-    this.state.weeks = getWeeks(ds.getFullYear(), month);
-  
-}
 
 
 

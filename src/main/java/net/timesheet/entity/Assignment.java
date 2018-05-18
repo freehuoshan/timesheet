@@ -64,4 +64,13 @@ public class Assignment extends AbstractAuditingEntity implements Serializable {
 	public void setHourlyRate(int hourlyRate) {
 		this.hourlyRate = hourlyRate;
 	}
+
+
+	@Override
+	public String toString() {
+		return "Assignment [active=" + active + ", endDate=" + endDate + ", hourlyRate=" + hourlyRate + ", id=" + id
+				+ ", startDate=" + startDate + "]";
+	}
+	
+	
 }
