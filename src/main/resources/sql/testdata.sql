@@ -1,0 +1,108 @@
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+--
+-- Host: 127.0.0.1    Database: timesheet
+-- ------------------------------------------------------
+-- Server version	5.6.27-enterprise-commercial-advanced
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Dumping data for table `approval`
+--
+
+LOCK TABLES `approval` WRITE;
+/*!40000 ALTER TABLE `approval` DISABLE KEYS */;
+/*!40000 ALTER TABLE `approval` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `assignment`
+--
+
+LOCK TABLES `assignment` WRITE;
+/*!40000 ALTER TABLE `assignment` DISABLE KEYS */;
+INSERT INTO `assignment` VALUES (123456,'123','2018-05-04 12:04:26','123','2018-05-04 12:04:26','\0',NULL,12,NULL),(123455,'123','2018-05-04 12:04:26','123','2018-05-04 12:04:26','\0',NULL,18,NULL);
+/*!40000 ALTER TABLE `assignment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `hibernate_sequence`
+--
+
+LOCK TABLES `hibernate_sequence` WRITE;
+/*!40000 ALTER TABLE `hibernate_sequence` DISABLE KEYS */;
+INSERT INTO `hibernate_sequence` VALUES (22),(22),(22),(22);
+/*!40000 ALTER TABLE `hibernate_sequence` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `project`
+--
+
+LOCK TABLES `project` WRITE;
+/*!40000 ALTER TABLE `project` DISABLE KEYS */;
+/*!40000 ALTER TABLE `project` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `time_entry`
+--
+
+LOCK TABLES `time_entry` WRITE;
+/*!40000 ALTER TABLE `time_entry` DISABLE KEYS */;
+INSERT INTO `time_entry` VALUES (1,'123','2018-05-05 12:21:21','123','2018-05-05 12:21:21','2018-05-06',5,NULL,123456),(2,'123','2018-05-05 12:21:21','123','2018-05-05 12:21:21','2018-05-16',7,'1234',123456),(3,'123','2018-05-05 12:21:21','123','2018-05-05 12:21:21','2018-05-17',6,NULL,123456),(4,'123','2018-05-05 12:21:21','123','2018-05-05 12:21:21','2018-05-19',3,NULL,123455),(7,'123','2018-05-18 15:34:10','123','2018-05-18 15:34:10','2018-05-14',7,NULL,123456),(8,'123','2018-05-18 15:37:29','123','2018-05-18 15:37:29','2018-05-15',6,'test',123456),(9,'123','2018-05-18 15:38:13','123','2018-05-18 15:38:13','2018-04-30',8,NULL,123456),(10,'123','2018-05-18 15:43:36','123','2018-05-18 15:43:36','2018-05-15',8,NULL,123455),(11,'123','2018-05-18 15:49:09','123','2018-05-18 15:49:09','2018-05-14',4,NULL,123455),(12,'123','2018-05-18 16:23:42','123','2018-05-18 16:23:42','2018-05-16',5,'sfsdfsf',123455),(13,'123','2018-05-18 16:31:53','123','2018-05-18 16:31:53','2018-05-18',6,'note test',123456),(14,'123','2018-05-18 16:32:37','123','2018-05-18 16:32:37','2018-05-02',2,NULL,123456),(15,'123','2018-05-18 16:32:50','123','2018-05-18 16:32:50','2018-05-03',5,NULL,123456),(16,'123','2018-05-18 16:35:17','123','2018-05-18 16:35:17','2018-05-18',7,NULL,123455),(17,'123','2018-05-18 17:15:09','123','2018-05-18 17:15:09','2018-05-17',8,NULL,123455),(21,'123','2018-05-19 10:39:17','123','2018-05-19 10:39:17','2018-05-04',4,NULL,123456);
+/*!40000 ALTER TABLE `time_entry` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `time_sheet`
+--
+
+LOCK TABLES `time_sheet` WRITE;
+/*!40000 ALTER TABLE `time_sheet` DISABLE KEYS */;
+INSERT INTO `time_sheet` VALUES (1,'123','2015-04-09 12:04:25','123','2015-04-09 12:04:25','NEW'),(2,'123','2015-04-09 12:04:25','123','2015-04-09 12:04:25','NEW');
+/*!40000 ALTER TABLE `time_sheet` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `time_sheet_approvals`
+--
+
+LOCK TABLES `time_sheet_approvals` WRITE;
+/*!40000 ALTER TABLE `time_sheet_approvals` DISABLE KEYS */;
+/*!40000 ALTER TABLE `time_sheet_approvals` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `time_sheet_entries`
+--
+
+LOCK TABLES `time_sheet_entries` WRITE;
+/*!40000 ALTER TABLE `time_sheet_entries` DISABLE KEYS */;
+INSERT INTO `time_sheet_entries` VALUES (1,2),(1,3),(1,4),(1,7),(1,8),(1,10),(1,11),(1,12),(1,13),(1,16),(1,17),(2,1),(2,9),(2,14),(2,15),(2,21);
+/*!40000 ALTER TABLE `time_sheet_entries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'timesheet'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-05-19 11:37:46
