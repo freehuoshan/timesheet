@@ -2,6 +2,7 @@ $(document).ready(function(){
 	
 	window.queryData = queryData;
 	window.update = update;
+	window.note = note;
 	//current date time
 	var d = new Date();
 	var year = d.getFullYear();
@@ -17,6 +18,39 @@ $(document).ready(function(){
 	showDate(year, month, date);
 	showDatePeriod();
 	queryData(year, month+1, state.week);
+	
+	function note(el){
+		$("#myModal").modal('show');
+		note = $(el).parent().attr('note');
+		id = $(el).parent().attr('id');
+		$("#note").val(note == 'null' ? '' : note);
+	}
+	
+	$("#note_submit").click(function(){
+		note = $("#note").val();
+		var url = '/time_entry/note';
+		//update data
+		$.ajax({
+			url: url,
+			type: "PUT",
+			data: {id: id, note: note},
+			dataType: "json",
+			success: function(data){
+				if(data.result){
+					$("#myModal").modal('hide');
+					alert('edit note success');
+					window.location.reload();
+				}else{
+					alert('edit note fail');
+				}
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+			
+	});
+	
 	
 	$("#submit").click(function(){
 		$.ajax({
@@ -40,9 +74,9 @@ $(document).ready(function(){
 	//edit time entry
 	function update(el){
 		var hours = parseInt($(el).html());
-		var id = $(el).attr("id");
-		var date = $(el).attr("date");
-		var asid = $(el).attr("asid");
+		var id = $(el).parent().attr("id");
+		var date = $(el).parent().attr("date");
+		var asid = $(el).parent().attr("asid");
 		if(!hours || hours < 0 || hours > 24){
 			alert("must be a number and more than 0 less than 24");
 		}else{
@@ -111,11 +145,13 @@ $(document).ready(function(){
 						tr.append("<td>" + data[i].assignment.id + "</td>");
 						//loop each cell (timeentry) 
 						for(var j = 0; j < data[i].list.length; j++ ){
-							var td = $("<td onblur= 'update(this)' asid='"+ data[i].list[j].assignment.id +"' id='"+ data[i].list[j].id +"' date='" + data[i].list[j].date +"' contenteditable='" + (timesheet.status == "NEW") + "'>" + data[i].list[j].hours + "</td>");
+							var td = $("<td note='"+ data[i].list[j].note +"' asid='"+ data[i].list[j].assignment.id +"' id='"+ data[i].list[j].id +"' date='" + data[i].list[j].date +"'></td>");
+							td.append("<span class='col-md-8' onblur= 'update(this)'  contenteditable='" + (timesheet.status == "NEW") + "'>" + data[i].list[j].hours + "</span>")
+							td.append("<span class='fa fa-comment' onclick='note(this)'></span>")
 							tr.append(td);
 							total += data[i].list[j].hours;
 						}
-						tr.append("<td>" + total + "</td>");
+						tr.append("<td><span class='col-md-8'>" + total + "</span></td>");
 						ts_body.append(tr);
 					}
 					var totalTr = $("<tr>");
@@ -140,7 +176,7 @@ $(document).ready(function(){
 	// per column calculation for the timesheet table
 	function calcuTimeSheetTotal(){
 		for(var t = 1; t < 9; t++){
-			calcTotal(document.getElementById('timesheet'), t);
+			calcTotal($('#timesheet'), t);
 		}
 	}
 	
@@ -154,11 +190,12 @@ $(document).ready(function(){
 		        var colIndex = 0;
 		        tds.each(function() {  
 		        	if(colIndex != 0 && colIndex != tds.length -1 ){
-		        		rowTotal += parseFloat($(this).text());  
+		        		var hours = $(this).find('span').first().html();
+		        		rowTotal += parseFloat(hours);  
 		        	}
 		        	colIndex++;
 		        });  
-		        tds[tds.length-1].innerHTML= rowTotal;
+		        tds.eq(tds.length-1).html("<span class='col-md-8'>" + rowTotal + "</span>");
 			 }
 		     rowIndex++;  
 		 });  
@@ -166,16 +203,17 @@ $(document).ready(function(){
 	
 	//Calculation of the specified column addition in the table
 	function calcTotal(table,column){//To sum up, which column is need to total the table object, the first column starts from 0.
-        var trs=table.getElementsByTagName('tr');
+        var trs = table.find("tr");
         var start=1,//ignoring the first line of the head
             end=trs.length-1;//Ignore the last line
         var total=0;
         for(var i=start;i<end;i++){
-            var td=trs[i].getElementsByTagName('td')[column];
-            var t=parseFloat(td.innerHTML);
+            var td=trs.eq(i).find('td').eq(column);
+            var hoursSpan = td.find("span").first();
+            var t=parseFloat(hoursSpan.html());
             if(t)total+=t;
         }
-        trs[end].getElementsByTagName('td')[column].innerHTML=total;
+        trs.eq(end).find('td').eq(column).html("<span class='col-md-8'>" + total + "</span>");
     };
 	
    
@@ -253,9 +291,6 @@ $(document).ready(function(){
 		}
 		
 	}
-	
-	
-	
 });
 
 

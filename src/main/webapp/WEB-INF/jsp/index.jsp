@@ -72,5 +72,31 @@
 	 	</table>
 	 	<button id="submit" class="btn col-md-offset-6">Submit</button>
 	</div>
+	
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" id="myModalLabel">
+						Edit Note
+					</h4>
+				</div>
+				<div class="modal-body">
+					<textarea id="note" class="form-control" cols="10"></textarea>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">close
+					</button>
+					<button id="note_submit" type="button" class="btn btn-primary">
+						submit
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
 	</body>
 </html>

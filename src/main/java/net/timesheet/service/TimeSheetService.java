@@ -26,5 +26,11 @@ public interface TimeSheetService {
 	 * @return
 	 */
 	public Map<String, Boolean> submit(Long id);
+
+	/**
+	 * @param timeEntry
+	 * @return
+	 */
+	public Map<String, Boolean> note(TimeEntry timeEntry);
 	
 }

@@ -68,4 +68,11 @@ public class TimeSheetController {
 	public Map<String, Boolean> submit(Long id){
 		return this.timeSheetService.submit(id);
 	}
+	
+	@RequestMapping(value = "/time_entry/note", method = RequestMethod.PUT)
+	@ResponseBody
+	public Map<String, Boolean> updateTimeEntry(TimeEntry timeEntry) throws Exception{
+		
+		return this.timeSheetService.note(timeEntry);
+	}
 }

@@ -161,4 +161,17 @@ public class TimeSheetServiceImpl implements TimeSheetService {
 		return resMap;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.timesheet.service.TimeSheetService#note(net.timesheet.entity.TimeEntry)
+	 */
+	@Override
+	public Map<String, Boolean> note(TimeEntry timeEntry) {
+		TimeEntry existTimeEntry = this.timeEntryRepository.getOne(timeEntry.getId());
+		existTimeEntry.setNote(timeEntry.getNote());
+		this.timeEntryRepository.save(existTimeEntry);
+		Map<String, Boolean> resultMap = new HashMap<>();
+		resultMap.put("result", true);
+		return resultMap;
+	}
+
 }
