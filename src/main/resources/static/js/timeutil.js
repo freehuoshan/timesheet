@@ -123,7 +123,6 @@ function showDate(year, mon, day){
         	if(monthStr.length == 1){
         		monthStr = "0" + monthStr;
         	}
-        	var day = d.getDate();
         	var dayStr = day.toString();
         	if(dayStr.length == 1){
         		dayStr = "0" + dayStr;
@@ -152,7 +151,7 @@ function showDate(year, mon, day){
         d.setDate(d.getDate()+1);
     }
     let month=ds.getMonth()+1;
-    let week=this.getMonthWeek(ds.getFullYear(),month,ds.getDate())-1;
+    let week=this.getMonthWeek(ds.getFullYear(),month,ds.getDate()) - 1;
     //每月周一日期
     let oneDate=this.getMondayTime(ds.getFullYear(),month,1);
     if(ds.getDate()<oneDate){

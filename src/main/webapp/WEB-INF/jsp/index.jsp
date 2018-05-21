@@ -54,9 +54,12 @@
 		  <td class="fa fa-chevron-right" id="add"></td>
 		</tr>
 	  </table>
-	<div id="time_period">
-		2018-05-14/2018-05-20
-	</div>
+	  <div class="time_info">
+			<span class="col-md-offset-3" id="time_period">2018-05-14/2018-05-20</span>
+		<!-- 	<span class="fa fa-arrow-circle-left" id="pre"></span>pre next
+			<span class="fa fa-arrow-circle-right" id="next"></span> -->
+	  </div>
+	
 	<div id="timesheet_div" class="col-md-10 col-md-offset-1">
 		<table id="timesheet" class="table table-bordered">
 		  	<thead>

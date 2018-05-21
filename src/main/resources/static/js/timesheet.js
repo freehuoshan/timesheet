@@ -1,5 +1,7 @@
 $(document).ready(function(){
 	
+	console.log(getMonthWeek(2018,7,8));
+	
 	window.queryData = queryData;
 	window.update = update;
 	window.note = note;
@@ -15,9 +17,35 @@ $(document).ready(function(){
 	//Display navigation bar
 	showMonthHead(year, month);
 	//Get detailed information for this week, including start date, end date, and daily list.
-	showDate(year, month, date);
+	showDate(year, month + 1, date);
 	showDatePeriod();
 	queryData(year, month+1, state.week);
+	
+	$("#next").click(function(){
+		nextWeek();
+	});
+	
+	function nextWeek(){
+		year = state.year;
+		month = state.month;
+		week = state.week;
+		week++;
+		var weeks = getWeeks(year, month);
+		if(week > weeks){
+			month++
+			week = 1;
+			if(month > 12){
+				year++;
+				month = 1;
+			}
+		}
+		state.year = year;
+		state.month = month;
+		state.week = week;
+		showMonthHead(year, month);
+		showDatePeriod();
+		queryData(year, month, week);
+	}
 	
 	function note(el){
 		$("#myModal").modal('show');
@@ -73,7 +101,7 @@ $(document).ready(function(){
 	
 	//edit time entry
 	function update(el){
-		var hours = parseInt($(el).html());
+		var hours = parseInt($(el).val());
 		var id = $(el).parent().attr("id");
 		var date = $(el).parent().attr("date");
 		var asid = $(el).parent().attr("asid");
@@ -146,12 +174,16 @@ $(document).ready(function(){
 						//loop each cell (timeentry) 
 						for(var j = 0; j < data[i].list.length; j++ ){
 							var td = $("<td note='"+ data[i].list[j].note +"' asid='"+ data[i].list[j].assignment.id +"' id='"+ data[i].list[j].id +"' date='" + data[i].list[j].date +"'></td>");
-							td.append("<span class='col-md-8' onblur= 'update(this)'  contenteditable='" + (timesheet.status == "NEW") + "'>" + data[i].list[j].hours + "</span>")
+							if(timesheet.status == "NEW"){
+								td.append("<input type='text' class='col-md-8' onchange= 'update(this)' value='" + data[i].list[j].hours +"'>")
+							}else{
+								td.append("<input type='text' class='col-md-8' onchange= 'update(this)' disabled='disabled' value='" + data[i].list[j].hours +"'>")
+							}
 							td.append("<span class='fa fa-comment' onclick='note(this)'></span>")
 							tr.append(td);
 							total += data[i].list[j].hours;
 						}
-						tr.append("<td><span class='col-md-8'>" + total + "</span></td>");
+						tr.append("<td><span class='col-md-8' value='"+ total +"'>" + total + "</span></td>");
 						ts_body.append(tr);
 					}
 					var totalTr = $("<tr>");
@@ -190,12 +222,12 @@ $(document).ready(function(){
 		        var colIndex = 0;
 		        tds.each(function() {  
 		        	if(colIndex != 0 && colIndex != tds.length -1 ){
-		        		var hours = $(this).find('span').first().html();
+		        		var hours = $(this).find('input').first().val();
 		        		rowTotal += parseFloat(hours);  
 		        	}
 		        	colIndex++;
 		        });  
-		        tds.eq(tds.length-1).html("<span class='col-md-8'>" + rowTotal + "</span>");
+		        tds.eq(tds.length-1).html("<span class='col-md-8' value='"+ rowTotal +"'>" + rowTotal + "</span>");
 			 }
 		     rowIndex++;  
 		 });  
@@ -209,8 +241,8 @@ $(document).ready(function(){
         var total=0;
         for(var i=start;i<end;i++){
             var td=trs.eq(i).find('td').eq(column);
-            var hoursSpan = td.find("span").first();
-            var t=parseFloat(hoursSpan.html());
+            var hoursInput = td.children().first();
+            var t=parseFloat(hoursInput.attr('value'));
             if(t)total+=t;
         }
         trs.eq(end).find('td').eq(column).html("<span class='col-md-8'>" + total + "</span>");
@@ -281,13 +313,13 @@ $(document).ready(function(){
 		}
 		
 		$("#centerMonth div:first").html(monArr[centerMonth]);
-		for(var i=1; i< centerMonthWeeks + 1; i++){
-			$("#centerMonth div:last").append("<span onclick='queryData("+ year + "," + (centerMonth+1) + "," + i +")'>week" + i + "</span>");
+		for(var j=1; j< centerMonthWeeks + 1; j++){
+			$("#centerMonth div:last").append("<span onclick='queryData("+ year + "," + (centerMonth+1) + "," + j +")'>week" + j + "</span>");
 		}
 		
 		$("#rightMonth div:first").html(monArr[rightMonth]);
-		for(var i=1; i< rightMonthWeeks + 1; i++){
-			$("#rightMonth div:last").append("<span onclick='queryData("+ rightYear + "," + (rightMonth+1) + "," + i +")'>week" + i + "</span>");
+		for(var k=1; k< rightMonthWeeks + 1; k++){
+			$("#rightMonth div:last").append("<span onclick='queryData("+ rightYear + "," + (rightMonth+1) + "," + k +")'>week" + k + "</span>");
 		}
 		
 	}
